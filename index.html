@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SurfCoach</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    color: #111;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .header {
+    background: #0077aa;
+    color: #fff;
+    padding: 14px 16px 10px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .surfer-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+
+  .wave-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  .wave-badge.tube { background: #00aa77; }
+
+  .header-meta {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+
+  /* SUMMARY */
+  .summary {
+    background: #fff;
+    border-right: 4px solid #0077aa;
+    padding: 12px 16px;
+    margin: 12px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .summary strong {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #0077aa;
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  /* TOGGLE */
+  .toggle-btn {
+    display: block;
+    width: calc(100% - 24px);
+    margin: 0 12px 12px;
+    padding: 10px;
+    background: #fff;
+    color: #0077aa;
+    border: 1px solid #0077aa;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  /* EVENT CARDS */
+  .events { padding: 0 12px 24px; }
+
+  .event {
+    background: #fff;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .event-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    background: #ddd;
+  }
+
+  .event-img-placeholder {
+    width: 100%;
+    height: 200px;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 0.8rem;
+  }
+
+  .event-body { padding: 10px 12px; }
+
+  .event-type {
+    font-size: 0.65rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #0077aa;
+    margin-bottom: 4px;
+  }
+
+  .event-type.tube { color: #00aa77; }
+
+  .event-note {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #222;
+  }
+
+  /* EXPANDED */
+  .event-detail {
+    display: none;
+    padding: 10px 12px;
+    border-top: 1px solid #eee;
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.7;
+  }
+
+  body.expanded .event-detail { display: block; }
+
+  .frames-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .frame-thumb {
+    flex-shrink: 0;
+    width: 80px;
+    text-align: center;
+  }
+
+  .frame-thumb img {
+    width: 80px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 2px solid transparent;
+    display: block;
+  }
+
+  .frame-thumb.peak img { border-color: #0077aa; }
+  .frame-thumb.peak.tube img { border-color: #00aa77; }
+
+  .frame-thumb-label {
+    font-size: 0.55rem;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  /* LOADING / ERROR */
+  .state {
+    padding: 40px 16px;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<div id="app"><div class="state">טוען...</div></div>
+
+<script>
+async function load() {
+  try {
+    const res = await fetch('./session.json');
+    if (!res.ok) throw new Error('לא נמצא session.json');
+    const data = await res.json();
+    render(Array.isArray(data) ? data[0] : data);
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      `<div class="state">שגיאה בטעינה: ${e.message}</div>`;
+  }
+}
+
+function typeLabel(type) {
+  const map = {
+    popup: 'Popup',
+    bottom_turn: 'Bottom Turn',
+    top_turn: 'Top Turn',
+    direction_change: 'Direction Change',
+    pump: 'Pump',
+    loss_of_control: 'Loss of Control',
+    ride_end: 'Ride End',
+    tube_entry: 'Tube Entry',
+    tube_ride: 'Tube Ride',
+    tube_exit: 'Tube Exit'
+  };
+  return map[type] || type;
+}
+
+function eventHtml(ev) {
+  const isTube = ev.isTube;
+  const peakFrame = ev.frames.find(f => f.role === 'peak') || ev.frames[0];
+  const analysis = (ev.analysis || '').replace(/\n/g, '<br>');
+
+  const peakImg = peakFrame
+    ? `<img class="event-img" src="./${peakFrame.filename}" alt="F${peakFrame.num}" onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>F${peakFrame.num}</div>'">`
+    : `<div class="event-img-placeholder">אין תמונה</div>`;
+
+  const thumbs = ev.frames.map(f => `
+    <div class="frame-thumb${f.role === 'peak' ? (isTube ? ' peak tube' : ' peak') : ''}">
+      <img src="./${f.filename}" alt="F${f.num}"
+        onerror="this.style.background='#ddd';this.removeAttribute('src')">
+      <div class="frame-thumb-label">${f.role === 'peak' ? '★ ' : ''}F${f.num}</div>
+    </div>`).join('');
+
+  return `
+<div class="event">
+  ${peakImg}
+  <div class="event-body">
+    <div class="event-type${isTube ? ' tube' : ''}">${typeLabel(ev.type)}</div>
+    <div class="event-note">${ev.shortNote || ''}</div>
+  </div>
+  <div class="event-detail">
+    ${analysis}
+    <div class="frames-row">${thumbs}</div>
+  </div>
+</div>`;
+}
+
+function render(d) {
+  const tubeBadge = d.hasTube
+    ? `<span class="wave-badge tube">🌊 צינור</span>`
+    : `<span class="wave-badge">${d.waveLevel}</span>`;
+
+  const eventsHtml = (d.events || []).map(eventHtml).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="header">
+      <div class="header-top">
+        <div class="surfer-name">🏄 ${d.surferName}</div>
+        ${tubeBadge}
+      </div>
+      <div class="header-meta">${d.date} · גל ${d.waveLevel} · ${d.totalFrames} פריימים · ${d.fps}fps</div>
+    </div>
+
+    <div class="summary">
+      <strong>סיכום המאמן</strong>
+      ${d.summary}
+    </div>
+
+    <button class="toggle-btn" onclick="
+      document.body.classList.toggle('expanded');
+      this.textContent = document.body.classList.contains('expanded')
+        ? 'הסתר ניתוח מלא'
+        : 'הצג ניתוח מלא';
+    ">הצג ניתוח מלא</button>
+
+    <div class="events">${eventsHtml}</div>
+  `;
+}
+
+load();
+</script>
+</body>
+</html>
