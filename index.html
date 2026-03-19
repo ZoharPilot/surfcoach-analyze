@@ -183,6 +183,27 @@
     color: #666;
     font-size: 0.9rem;
   }
+
+  .img-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.4);
+  color: white;
+  border: none;
+  font-size: 2rem;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+.img-arrow-right { right: 8px; }
+.img-arrow-left { left: 8px; }
 </style>
 </head>
 <body>
@@ -231,7 +252,40 @@ function typeLabel(type) {
   return map[type] || type;
 }
 
-function eventHtml(ev) {
+ 
+  function eventHtml(ev) {
+    const isTube = ev.isTube;
+    const peakFrame = ev.frames.find(f => f.role === 'peak') || ev.frames[0];
+
+    const peakImg = peakFrame
+      ? `<img class="event-img" id="main-img-${ev.event_id}" src="${window.FRAME_BASE}/${peakFrame.filename}" alt="F${peakFrame.num}" onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>F${peakFrame.num}</div>'">`
+      : `<div class="event-img-placeholder">אין תמונה</div>`;
+
+    const thumbs = ev.frames.map((f, i) => `
+      <div class="frame-thumb${f.role === 'peak' ? (isTube ? ' peak tube' : ' peak') : ''}"
+          onclick="selectFrame(${ev.event_id}, ${i})">
+        <img src="${window.FRAME_BASE}/${f.filename}" alt="F${f.num}"
+          onerror="this.style.background='#ddd';this.removeAttribute('src')">
+        <div class="frame-thumb-label">${f.role === 'peak' ? '★ ' : ''}F${f.num}</div>
+      </div>`).join('');
+
+    return `
+  <div class="event" data-frames='${JSON.stringify(ev.frames)}' data-id="${ev.event_id}">
+    <div class="event-img-wrap" style="position:relative">
+      ${peakImg}
+      <button class="img-arrow img-arrow-right" onclick="shiftFrame(${ev.event_id}, -1)">&#8249;</button>
+      <button class="img-arrow img-arrow-left" onclick="shiftFrame(${ev.event_id}, 1)">&#8250;</button>
+    </div>
+    <div class="event-body">
+      <div class="event-type${isTube ? ' tube' : ''}">${typeLabel(ev.type)}</div>
+      <div class="event-note">${ev.shortNote || ''}</div>
+    </div>
+    <div class="event-detail">
+      <div class="frames-row">${thumbs}</div>
+    </div>
+  </div>`;
+  }
+
   const isTube = ev.isTube;
   const peakFrame = ev.frames.find(f => f.role === 'peak') || ev.frames[0];
   const analysis = (ev.analysis || '').replace(/\n/g, '<br>');
@@ -259,7 +313,7 @@ const peakImg = peakFrame
     <div class="frames-row">${thumbs}</div>
   </div>
 </div>`;
-}
+ 
 
 function render(d) {
   const tubeBadge = d.hasTube
@@ -291,6 +345,25 @@ function render(d) {
 
     <div class="events">${eventsHtml}</div>
   `;
+}
+
+const frameState = {};
+
+function selectFrame(eventId, index) {
+  const card = document.querySelector(`.event[data-id="${eventId}"]`);
+  const frames = JSON.parse(card.dataset.frames);
+  frameState[eventId] = index;
+  const f = frames[index];
+  const img = document.getElementById(`main-img-${eventId}`);
+  if (img) img.src = `${window.FRAME_BASE}/${f.filename}`;
+}
+
+function shiftFrame(eventId, dir) {
+  const card = document.querySelector(`.event[data-id="${eventId}"]`);
+  const frames = JSON.parse(card.dataset.frames);
+  const current = frameState[eventId] ?? frames.findIndex(f => f.role === 'peak');
+  const next = (current + dir + frames.length) % frames.length;
+  selectFrame(eventId, next);
 }
 
 load();
