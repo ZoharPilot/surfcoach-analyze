@@ -192,9 +192,22 @@
 <script>
 async function load() {
   try {
-    const res = await fetch('./session.json');
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get('user');
+    const session = params.get('session');
+    const wave = params.get('wave');
+
+    if (!user || !session || !wave) throw new Error('חסרים פרמטרים ב-URL');
+
+    const baseUrl = `https://raw.githubusercontent.com/ZoharPilot/surfcoach-analyze/main/users/${user}/${session}/${wave}`;
+    
+    const res = await fetch(`${baseUrl}/session.json`);
     if (!res.ok) throw new Error('לא נמצא session.json');
     const data = await res.json();
+    
+    // שמור baseUrl לשימוש בתמונות
+    window.FRAME_BASE = baseUrl;
+    
     render(Array.isArray(data) ? data[0] : data);
   } catch (e) {
     document.getElementById('app').innerHTML =
@@ -223,16 +236,16 @@ function eventHtml(ev) {
   const peakFrame = ev.frames.find(f => f.role === 'peak') || ev.frames[0];
   const analysis = (ev.analysis || '').replace(/\n/g, '<br>');
 
-  const peakImg = peakFrame
-    ? `<img class="event-img" src="./${peakFrame.filename}" alt="F${peakFrame.num}" onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>F${peakFrame.num}</div>'">`
-    : `<div class="event-img-placeholder">אין תמונה</div>`;
+const peakImg = peakFrame
+  ? `<img class="event-img" src="${window.FRAME_BASE}/${peakFrame.filename}" alt="F${peakFrame.num}" onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>F${peakFrame.num}</div>'">`
+  : `<div class="event-img-placeholder">אין תמונה</div>`;
 
-  const thumbs = ev.frames.map(f => `
-    <div class="frame-thumb${f.role === 'peak' ? (isTube ? ' peak tube' : ' peak') : ''}">
-      <img src="./${f.filename}" alt="F${f.num}"
-        onerror="this.style.background='#ddd';this.removeAttribute('src')">
-      <div class="frame-thumb-label">${f.role === 'peak' ? '★ ' : ''}F${f.num}</div>
-    </div>`).join('');
+ const thumbs = ev.frames.map(f => `
+  <div class="frame-thumb${f.role === 'peak' ? (isTube ? ' peak tube' : ' peak') : ''}">
+    <img src="${window.FRAME_BASE}/${f.filename}" alt="F${f.num}"
+      onerror="this.style.background='#ddd';this.removeAttribute('src')">
+    <div class="frame-thumb-label">${f.role === 'peak' ? '★ ' : ''}F${f.num}</div>
+  </div>`).join('');
 
   return `
 <div class="event">
