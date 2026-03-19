@@ -324,12 +324,12 @@ function render(d) {
       ${d.surferName}, ${d.summary}
     </div>
 
-    <button class="toggle-btn" onclick="
+      <button class="toggle-btn" onclick="
       document.body.classList.toggle('expanded');
       this.textContent = document.body.classList.contains('expanded')
-        ? 'הסתר ניתוח מלא'
-        : 'הצג ניתוח מלא';
-    ">הצג ניתוח מלא</button>
+        ? 'הסתר פריימים בתחתית'
+        : 'הצג פריימים בתחתית';
+    ">הצג פריימים בתחתית</button>
 
     <div class="events">${eventsHtml}</div>
   `;
