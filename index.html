@@ -200,6 +200,72 @@
     margin-top: 2px;
   }
 
+  /* RATING */
+  .rating-box {
+    background: #fff;
+    margin: 0 12px 12px;
+    padding: 16px;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  .rating-title {
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 12px;
+  }
+
+  .rating-circles {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .rating-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #0077aa;
+    color: #0077aa;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .rating-circle:hover {
+    background: #0077aa;
+    color: #fff;
+  }
+
+  .rating-thanks {
+    font-size: 0.9rem;
+    color: #0077aa;
+    font-weight: bold;
+    padding: 8px 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: #0077aa;
+    color: rgba(255,255,255,0.9);
+    text-align: center;
+    padding: 14px 16px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .footer strong {
+    display: block;
+    font-size: 0.95rem;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
   /* LOADING / ERROR */
   .state {
     padding: 40px 16px;
@@ -231,6 +297,11 @@ function shiftFrame(eventId, dir) {
   const current = frameState[eventId] ?? frames.findIndex(f => f.role === 'peak');
   const next = (current + dir + frames.length) % frames.length;
   selectFrame(eventId, next);
+}
+
+function submitRating(val) {
+  document.getElementById('rating-box').innerHTML =
+    `<div class="rating-thanks">תודה על הפידבק 🙏</div>`;
 }
 
 async function load() {
@@ -295,7 +366,7 @@ function eventHtml(ev) {
   </div>
   <div class="event-body">
     <div class="event-type${isTube ? ' tube' : ''}">${typeLabel(ev.type)}</div>
-    <div class="event-note">${ev.analysis || ''}</div>
+    <div class="event-note">${ev.analysis || ev.shortNote || ''}</div>
   </div>
   <div class="event-detail">
     <div class="frames-row">${thumbs}</div>
@@ -310,6 +381,10 @@ function render(d) {
 
   const eventsHtml = (d.events || []).map(eventHtml).join('');
 
+  const ratingCircles = [1,2,3,4,5].map(n =>
+    `<button class="rating-circle" onclick="submitRating(${n})">${n}</button>`
+  ).join('');
+
   document.getElementById('app').innerHTML = `
     <div class="header">
       <div class="header-top">
@@ -321,10 +396,10 @@ function render(d) {
 
     <div class="summary">
       <strong>סיכום המאמן</strong>
-      ${d.surferName}, ${d.summary}
+       ${d.surferName}, ${d.summary}
     </div>
 
-      <button class="toggle-btn" onclick="
+  <button class="toggle-btn" onclick="
       document.body.classList.toggle('expanded');
       this.textContent = document.body.classList.contains('expanded')
         ? 'הסתר פריימים בתחתית'
@@ -332,6 +407,16 @@ function render(d) {
     ">הצג פריימים בתחתית</button>
 
     <div class="events">${eventsHtml}</div>
+
+    <div class="rating-box" id="rating-box">
+      <div class="rating-title">איך היה הניתוח? דרג מ-1 עד 5</div>
+      <div class="rating-circles">${ratingCircles}</div>
+    </div>
+
+    <div class="footer">
+      <strong>סיכום סשיין גלישה</strong>
+      ${d.surferName} · גל ${d.waveLevel} · ${d.date}
+    </div>
   `;
 }
 
