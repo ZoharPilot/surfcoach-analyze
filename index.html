@@ -295,7 +295,7 @@ function eventHtml(ev) {
   </div>
   <div class="event-body">
     <div class="event-type${isTube ? ' tube' : ''}">${typeLabel(ev.type)}</div>
-    <div class="event-note">${ev.shortNote || ''}</div>
+    <div class="event-note">${ev.analysis || ''}</div>
   </div>
   <div class="event-detail">
     <div class="frames-row">${thumbs}</div>
@@ -321,7 +321,7 @@ function render(d) {
 
     <div class="summary">
       <strong>סיכום המאמן</strong>
-      ${d.summary}
+     <span style="font-weight:bold;"> ${d.surferName}, </span>${d.summary}
     </div>
 
     <button class="toggle-btn" onclick="
