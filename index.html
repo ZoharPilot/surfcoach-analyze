@@ -342,7 +342,8 @@ function typeLabel(type) {
 }
 
 function eventHtml(ev) {
-  const isTube = ev.isTube;
+  if (!ev.analysis) return '';
+  const isTube = ['tube_ride', 'barrel_entry', 'controlled_exit'].includes(ev.type);
   const peakFrame = ev.frames.find(f => f.role === 'peak') || ev.frames[0];
 
   const peakImg = peakFrame
@@ -379,7 +380,11 @@ function render(d) {
     ? `<span class="wave-badge tube">🌊 צינור</span>`
     : `<span class="wave-badge">${d.waveLevel}</span>`;
 
-  const eventsHtml = (d.events || []).map(eventHtml).join('');
+  const eventsHtml = (d.events || []).filter(ev => ev.analysis && ev.analysis.trim()).map(eventHtml).join('');
+
+  const ratingCircles = [1,2,3,4,5].map(n =>
+    `<button class="rating-circle" onclick="submitRating(${n})">${n}</button>`
+  ).join('');
 
   const ratingCircles = [1,2,3,4,5].map(n =>
     `<button class="rating-circle" onclick="submitRating(${n})">${n}</button>`
@@ -394,10 +399,7 @@ function render(d) {
       <div class="header-meta">${d.date} · גל ${d.waveLevel} · ${d.totalFrames} פריימים · ${d.fps}fps</div>
     </div>
 
-    <div class="summary">
-      <strong>סיכום המאמן</strong>
-       ${d.surferName}, ${d.summary}
-    </div>
+    <div class="summary"><strong>סיכום המאמן עבור הגולש ${d.surferName}</strong></div>
 
   <button class="toggle-btn" onclick="
       document.body.classList.toggle('expanded');
