@@ -386,10 +386,6 @@ function render(d) {
     `<button class="rating-circle" onclick="submitRating(${n})">${n}</button>`
   ).join('');
 
-  const ratingCircles = [1,2,3,4,5].map(n =>
-    `<button class="rating-circle" onclick="submitRating(${n})">${n}</button>`
-  ).join('');
-
   document.getElementById('app').innerHTML = `
     <div class="header">
       <div class="header-top">
