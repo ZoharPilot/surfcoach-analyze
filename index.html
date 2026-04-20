@@ -1,170 +1,250 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SurfCoach</title>
+<title>SurfCoach Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #1a6aff;
+    --black: #0d0d0d;
+    --gray-1: #f5f5f5;
+    --gray-2: #e8e8e8;
+    --gray-3: #999;
+    --green: #00994d;
+    --white: #ffffff;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
 
   body {
-    font-family: Arial, sans-serif;
-    background: #f0f0f0;
-    color: #111;
+    font-family: var(--font);
+    background: var(--gray-1);
+    color: var(--black);
     max-width: 480px;
     margin: 0 auto;
+    min-height: 100vh;
   }
+
+  [dir="ltr"] { text-align: left; }
+  [dir="rtl"] { text-align: right; }
 
   /* HEADER */
   .header {
-    background: #0077aa;
-    color: #fff;
-    padding: 14px 16px 10px;
+    background: var(--black);
+    color: var(--white);
+    padding: 20px 16px 16px;
   }
 
-  .header-top {
+  .header-brand {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 12px;
+  }
+
+  .header-main {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .surfer-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+  }
+
+  .surfer-avatar-fallback {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
   }
 
   .surfer-name {
-    font-size: 1.3rem;
-    font-weight: bold;
-    line-height: 1.2;
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
   }
 
   .wave-badge {
-    background: rgba(255,255,255,0.2);
-    padding: 3px 8px;
-    border-radius: 3px;
-    font-size: 0.85rem;
-    font-weight: bold;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
   }
 
-  .wave-badge.tube { background: #00aa77; }
+  .wave-badge.tube {
+    border-color: var(--green);
+    color: var(--green);
+  }
 
   .header-meta {
-    font-size: 0.75rem;
-    opacity: 0.8;
-    margin-top: 4px;
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    flex-wrap: wrap;
   }
 
-  /* SUMMARY */
-  .summary {
-    background: #fff;
-    border-right: 4px solid #0077aa;
-    padding: 12px 16px;
-    margin: 12px;
-    font-size: 0.9rem;
-    line-height: 1.6;
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
-  .summary strong {
-    display: block;
-    font-size: 0.7rem;
+  .meta-label {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #0077aa;
-    margin-bottom: 4px;
-    letter-spacing: 0.05em;
+    color: var(--gray-3);
+  }
+
+  .meta-value {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--white);
   }
 
   /* TOGGLE */
   .toggle-btn {
     display: block;
     width: calc(100% - 24px);
-    margin: 0 12px 12px;
+    margin: 12px 12px 4px;
     padding: 10px;
-    background: #fff;
-    color: #0077aa;
-    border: 1px solid #0077aa;
-    font-size: 0.9rem;
+    background: transparent;
+    color: var(--black);
+    border: 1px solid var(--gray-2);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     cursor: pointer;
     border-radius: 4px;
     text-align: center;
   }
 
-  /* EVENT CARDS */
-  .events { padding: 0 12px 24px; }
+  /* EVENTS */
+  .events { padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
 
   .event {
-    background: #fff;
-    margin-bottom: 10px;
+    background: var(--white);
     border-radius: 4px;
     overflow: hidden;
   }
 
-  .event-img-wrap {
-    position: relative;
-  }
+  .event-img-wrap { position: relative; }
 
   .event-img {
     width: 100%;
-    height: 200px;
+    height: 210px;
     object-fit: cover;
     display: block;
-    background: #ddd;
+    background: var(--gray-2);
   }
 
   .event-img-placeholder {
     width: 100%;
-    height: 200px;
-    background: #ddd;
+    height: 210px;
+    background: var(--gray-2);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #999;
+    color: var(--gray-3);
+    font-family: var(--mono);
     font-size: 0.8rem;
   }
 
-  /* ARROWS */
   .img-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.5);
     color: white;
     border: none;
-    font-size: 2rem;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.2rem;
     line-height: 1;
-    padding: 0;
   }
-  .img-arrow-right { right: 8px; }
-  .img-arrow-left { left: 8px; }
 
-  .event-body { padding: 10px 12px; }
+  .img-arrow-prev { left: 8px; }
+  .img-arrow-next { right: 8px; }
+
+  .frame-counter {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    pointer-events: none;
+    letter-spacing: 0.05em;
+  }
+
+  .event-body { padding: 12px 14px; }
 
   .event-type {
-    font-size: 0.65rem;
-    font-weight: bold;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #0077aa;
-    margin-bottom: 4px;
+    color: var(--blue);
+    margin-bottom: 6px;
   }
 
-  .event-type.tube { color: #00aa77; }
+  .event-type.tube { color: var(--green); }
 
-  .event-note {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: #222;
+  .event-analysis {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--black);
   }
 
-  /* EXPANDED */
-  .event-detail {
-    display: none;
-    padding: 10px 12px;
-    border-top: 1px solid #eee;
-  }
-
+  /* EXPANDED FRAMES */
+  .event-detail { display: none; padding: 10px 12px; border-top: 1px solid var(--gray-2); }
   body.expanded .event-detail { display: block; }
 
   .frames-row {
@@ -176,111 +256,178 @@
 
   .frame-thumb {
     flex-shrink: 0;
-    width: 80px;
+    width: 78px;
     text-align: center;
     cursor: pointer;
   }
 
   .frame-thumb img {
-    width: 80px;
-    height: 54px;
+    width: 78px;
+    height: 52px;
     object-fit: cover;
     border-radius: 2px;
     border: 2px solid transparent;
     display: block;
   }
 
-  .frame-thumb:hover img { border-color: #aaa; }
-  .frame-thumb.peak img { border-color: #0077aa; }
-  .frame-thumb.peak.tube img { border-color: #00aa77; }
+  .frame-thumb.peak img { border-color: var(--blue); }
+  .frame-thumb.peak.tube img { border-color: var(--green); }
 
   .frame-thumb-label {
-    font-size: 0.55rem;
-    color: #999;
-    margin-top: 2px;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    color: var(--gray-3);
+    margin-top: 3px;
   }
 
   /* RATING */
   .rating-box {
-    background: #fff;
+    background: var(--white);
     margin: 0 12px 12px;
     padding: 16px;
     border-radius: 4px;
     text-align: center;
   }
 
-  .rating-title {
-    font-size: 0.8rem;
-    color: #555;
+  .rating-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-3);
     margin-bottom: 12px;
   }
 
-  .rating-circles {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-  }
+  .rating-circles { display: flex; justify-content: center; gap: 10px; }
 
   .rating-circle {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    border: 2px solid #0077aa;
-    color: #0077aa;
-    font-size: 1.1rem;
-    font-weight: bold;
-    background: #fff;
+    border: 1.5px solid var(--gray-2);
+    color: var(--black);
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: var(--white);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, color 0.15s;
+    transition: border-color 0.15s, background 0.15s;
   }
 
-  .rating-circle:hover {
-    background: #0077aa;
-    color: #fff;
-  }
+  .rating-circle:hover { border-color: var(--blue); color: var(--blue); }
 
   .rating-thanks {
-    font-size: 0.9rem;
-    color: #0077aa;
-    font-weight: bold;
+    font-size: 0.85rem;
+    color: var(--gray-3);
     padding: 8px 0;
   }
 
   /* FOOTER */
   .footer {
-    background: #0077aa;
-    color: rgba(255,255,255,0.9);
+    background: var(--black);
+    color: rgba(255,255,255,0.4);
     text-align: center;
-    padding: 14px 16px;
-    font-size: 0.8rem;
-    line-height: 1.6;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
-  .footer strong {
-    display: block;
-    font-size: 0.95rem;
-    color: #fff;
-    margin-bottom: 2px;
-  }
-
-  /* LOADING / ERROR */
   .state {
     padding: 40px 16px;
     text-align: center;
-    color: #666;
-    font-size: 0.9rem;
+    color: var(--gray-3);
+    font-family: var(--mono);
+    font-size: 0.8rem;
   }
 </style>
 </head>
 <body>
-
-<div id="app"><div class="state">טוען...</div></div>
+<div id="app"></div>
 
 <script>
 const frameState = {};
+window.LANG = 'he';
+
+const T = {
+  he: {
+    brand: 'SURF ANALYSIS',
+    loading: 'טוען...',
+    errorPrefix: 'שגיאה: ',
+    missingParams: 'חסרים פרמטרים ב-URL',
+    sessionNotFound: 'לא נמצא session.json',
+    date: 'תאריך',
+    wave: 'גל',
+    frames: 'פריימים',
+    fps: 'FPS',
+    tube: 'TUBE',
+    showFrames: 'הצג פריימים',
+    hideFrames: 'הסתר פריימים',
+    ratingLabel: 'דרג את הניתוח',
+    ratingThanks: 'תודה על הפידבק',
+    noImage: 'אין תמונה',
+    footer: name => `${name} · SURFCOACH`,
+    types: {
+      popup_execution: 'קימה',
+      bottom_turn: 'תפנית תחתית',
+      top_turn: 'תפנית עליונה',
+      barrel_entry: 'כניסה לצינור',
+      tube_ride: 'רכיבת צינור',
+      controlled_exit: 'יציאה מבוקרת',
+      wipeout_management: 'נפילה',
+      pump: 'פאמפ',
+      ride_end: 'סיום גל'
+    }
+  },
+  en: {
+    brand: 'SURF ANALYSIS',
+    loading: 'Loading...',
+    errorPrefix: 'Error: ',
+    missingParams: 'Missing URL parameters',
+    sessionNotFound: 'session.json not found',
+    date: 'Date',
+    wave: 'Wave',
+    frames: 'Frames',
+    fps: 'FPS',
+    tube: 'TUBE',
+    showFrames: 'Show frames',
+    hideFrames: 'Hide frames',
+    ratingLabel: 'Rate the analysis',
+    ratingThanks: 'Thanks for your feedback',
+    noImage: 'No image',
+    footer: name => `${name} · SURFCOACH`,
+    types: {
+      popup_execution: 'Pop-up',
+      bottom_turn: 'Bottom Turn',
+      top_turn: 'Top Turn',
+      barrel_entry: 'Barrel Entry',
+      tube_ride: 'Tube Ride',
+      controlled_exit: 'Controlled Exit',
+      wipeout_management: 'Wipeout',
+      pump: 'Pump',
+      ride_end: 'Ride End'
+    }
+  }
+};
+
+function t(key, ...args) {
+  const lang = T[window.LANG] ?? T['en'];
+  const entry = lang[key];
+  return typeof entry === 'function' ? entry(...args) : (entry ?? key);
+}
+
+function typeLabel(type) {
+  const labels = (T[window.LANG] ?? T['en']).types;
+  return labels[type] || type.replace(/_/g, ' ');
+}
+
+function isTubeType(type) {
+  return ['tube_ride', 'barrel_entry', 'controlled_exit'].includes(type);
+}
 
 function selectFrame(eventId, index) {
   const card = document.querySelector(`.event[data-id="${eventId}"]`);
@@ -289,6 +436,8 @@ function selectFrame(eventId, index) {
   const f = frames[index];
   const img = document.getElementById(`main-img-${eventId}`);
   if (img) img.src = `${window.FRAME_BASE}/${f.filename}`;
+  const counter = document.getElementById(`counter-${eventId}`);
+  if (counter) counter.textContent = `F${f.num}`;
 }
 
 function shiftFrame(eventId, dir) {
@@ -299,75 +448,51 @@ function shiftFrame(eventId, dir) {
   selectFrame(eventId, next);
 }
 
+function toggleFrames(btn) {
+  document.body.classList.toggle('expanded');
+  btn.textContent = document.body.classList.contains('expanded')
+    ? t('hideFrames')
+    : t('showFrames');
+}
+
 function submitRating(val) {
   document.getElementById('rating-box').innerHTML =
-    `<div class="rating-thanks">תודה על הפידבק 🙏</div>`;
-}
-
-async function load() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const user = params.get('user');
-    const session = params.get('session');
-    const wave = params.get('wave');
-
-    if (!user || !session || !wave) throw new Error('חסרים פרמטרים ב-URL');
-
-    window.FRAME_BASE = `https://raw.githubusercontent.com/ZoharPilot/surfcoach-analyze/main/users/${user}/${session}/${wave}`;
-
-    const res = await fetch(`${window.FRAME_BASE}/session.json`);
-    if (!res.ok) throw new Error('לא נמצא session.json');
-    const data = await res.json();
-    render(Array.isArray(data) ? data[0] : data);
-  } catch (e) {
-    document.getElementById('app').innerHTML =
-      `<div class="state">שגיאה בטעינה: ${e.message}</div>`;
-  }
-}
-
-function typeLabel(type) {
-  const map = {
-    popup: 'Popup',
-    bottom_turn: 'Bottom Turn',
-    top_turn: 'Top Turn',
-    direction_change: 'Direction Change',
-    pump: 'Pump',
-    loss_of_control: 'Loss of Control',
-    ride_end: 'Ride End',
-    tube_entry: 'Tube Entry',
-    tube_ride: 'Tube Ride',
-    tube_exit: 'Tube Exit'
-  };
-  return map[type] || type;
+    `<div class="rating-thanks">${t('ratingThanks')}</div>`;
 }
 
 function eventHtml(ev) {
   if (!ev.analysis) return '';
-  const isTube = ['tube_ride', 'barrel_entry', 'controlled_exit'].includes(ev.type);
-  const peakFrame = ev.frames.find(f => f.role === 'peak') || ev.frames[0];
+  const isTube = isTubeType(ev.type);
+  const peakFrame = ev.frames?.find(f => f.role === 'peak') || ev.frames?.[0];
 
-  const peakImg = peakFrame
-    ? `<img class="event-img" id="main-img-${ev.event_id}" src="${window.FRAME_BASE}/${peakFrame.filename}" alt="F${peakFrame.num}" onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>F${peakFrame.num}</div>'">`
-    : `<div class="event-img-placeholder">אין תמונה</div>`;
+  const mainImg = peakFrame
+    ? `<img class="event-img" id="main-img-${ev.event_id}"
+        src="${window.FRAME_BASE}/${peakFrame.filename}"
+        alt="F${peakFrame.num}"
+        onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>${t('noImage')}</div>'">`
+    : `<div class="event-img-placeholder">${t('noImage')}</div>`;
 
-  const thumbs = ev.frames.map((f, i) => `
+  const thumbs = (ev.frames || []).map((f, i) => `
     <div class="frame-thumb${f.role === 'peak' ? (isTube ? ' peak tube' : ' peak') : ''}"
          onclick="selectFrame(${ev.event_id}, ${i})">
       <img src="${window.FRAME_BASE}/${f.filename}" alt="F${f.num}"
-        onerror="this.style.background='#ddd';this.removeAttribute('src')">
-      <div class="frame-thumb-label">${f.role === 'peak' ? '★ ' : ''}F${f.num}</div>
+        onerror="this.style.background='var(--gray-2)';this.removeAttribute('src')">
+      <div class="frame-thumb-label">F${f.num}</div>
     </div>`).join('');
 
+  const framesJson = JSON.stringify(ev.frames || []).replace(/"/g, '&quot;');
+
   return `
-<div class="event" data-frames='${JSON.stringify(ev.frames)}' data-id="${ev.event_id}">
+<div class="event" data-frames="${framesJson}" data-id="${ev.event_id}">
   <div class="event-img-wrap">
-    ${peakImg}
-    <button class="img-arrow img-arrow-right" onclick="shiftFrame(${ev.event_id}, -1)">&#8249;</button>
-    <button class="img-arrow img-arrow-left" onclick="shiftFrame(${ev.event_id}, 1)">&#8250;</button>
+    ${mainImg}
+    <button class="img-arrow img-arrow-prev" onclick="shiftFrame(${ev.event_id}, -1)">&#8249;</button>
+    <button class="img-arrow img-arrow-next" onclick="shiftFrame(${ev.event_id}, 1)">&#8250;</button>
+    <div class="frame-counter" id="counter-${ev.event_id}">F${peakFrame?.num ?? ''}</div>
   </div>
   <div class="event-body">
     <div class="event-type${isTube ? ' tube' : ''}">${typeLabel(ev.type)}</div>
-    <div class="event-note">${ev.analysis || ev.shortNote || ''}</div>
+    <div class="event-analysis">${ev.analysis}</div>
   </div>
   <div class="event-detail">
     <div class="frames-row">${thumbs}</div>
@@ -376,46 +501,99 @@ function eventHtml(ev) {
 }
 
 function render(d) {
+  const isRtl = window.LANG === 'he';
+  document.documentElement.lang = window.LANG;
+  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+  document.body.style.direction = isRtl ? 'rtl' : 'ltr';
+
   const tubeBadge = d.hasTube
-    ? `<span class="wave-badge tube">🌊 צינור</span>`
+    ? `<span class="wave-badge tube">${t('tube')}</span>`
     : `<span class="wave-badge">${d.waveLevel}</span>`;
 
-  const eventsHtml = (d.events || []).filter(ev => ev.analysis && ev.analysis.trim()).map(eventHtml).join('');
+  const avatarUrl = `https://raw.githubusercontent.com/ZoharPilot/surfcoach-analyze/main/users/${window.CURRENT_USER}/photo.jpg`;
+  const avatarHtml = `<img class="surfer-avatar"
+    src="${avatarUrl}"
+    alt="${d.surferName}"
+    onerror="this.outerHTML='<div class=\\'surfer-avatar-fallback\\'>${d.surferName.charAt(0).toUpperCase()}</div>'">`;
 
-  const ratingCircles = [1,2,3,4,5].map(n =>
-    `<button class="rating-circle" onclick="submitRating(${n})">${n}</button>`
-  ).join('');
+  const eventsHtml = (d.events || [])
+    .filter(ev => ev.analysis && ev.analysis.trim())
+    .map(eventHtml).join('');
+
+  const ratingCircles = [1,2,3,4,5]
+    .map(n => `<button class="rating-circle" onclick="submitRating(${n})">${n}</button>`)
+    .join('');
 
   document.getElementById('app').innerHTML = `
     <div class="header">
-      <div class="header-top">
-        <div class="surfer-name">🏄 ${d.surferName}</div>
+      <div class="header-brand">${t('brand')}</div>
+      <div class="header-main">
+        <div class="header-identity">
+          ${avatarHtml}
+          <div class="surfer-name">${d.surferName}</div>
+        </div>
         ${tubeBadge}
       </div>
-      <div class="header-meta">${d.date} · גל ${d.waveLevel} · ${d.totalFrames} פריימים · ${d.fps}fps</div>
+      <div class="header-meta">
+        <div class="meta-item">
+          <span class="meta-label">${t('date')}</span>
+          <span class="meta-value">${d.date ?? '—'}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">${t('wave')}</span>
+          <span class="meta-value">${d.waveLevel}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">${t('frames')}</span>
+          <span class="meta-value">${d.totalFrames}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">${t('fps')}</span>
+          <span class="meta-value">${d.fps}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="summary"><strong>סיכום המאמן עבור הגולש ${d.surferName}</strong></div>
-
-  <button class="toggle-btn" onclick="
-      document.body.classList.toggle('expanded');
-      this.textContent = document.body.classList.contains('expanded')
-        ? 'הסתר פריימים בתחתית'
-        : 'הצג פריימים בתחתית';
-    ">הצג פריימים בתחתית</button>
+    <button class="toggle-btn" onclick="toggleFrames(this)">${t('showFrames')}</button>
 
     <div class="events">${eventsHtml}</div>
 
     <div class="rating-box" id="rating-box">
-      <div class="rating-title">איך היה הניתוח? דרג מ-1 עד 5</div>
+      <div class="rating-label">${t('ratingLabel')}</div>
       <div class="rating-circles">${ratingCircles}</div>
     </div>
 
-    <div class="footer">
-      <strong>סיכום סשיין גלישה</strong>
-      ${d.surferName} · גל ${d.waveLevel} · ${d.date}
-    </div>
+    <div class="footer">${t('footer', d.surferName)}</div>
   `;
+}
+
+async function load() {
+  const params = new URLSearchParams(window.location.search);
+  const user    = params.get('user');
+  const session = params.get('session');
+  const wave    = params.get('wave');
+  const lang    = params.get('lang') ?? 'he';
+
+  window.LANG = lang;
+  window.CURRENT_USER = user;
+  document.documentElement.lang = lang;
+  document.documentElement.dir  = lang === 'he' ? 'rtl' : 'ltr';
+
+  document.getElementById('app').innerHTML = `<div class="state">${t('loading')}</div>`;
+
+  try {
+    if (!user || !session || !wave) throw new Error(t('missingParams'));
+
+    window.FRAME_BASE = `https://raw.githubusercontent.com/ZoharPilot/surfcoach-analyze/main/users/${user}/${session}/${wave}`;
+
+    const res = await fetch(`${window.FRAME_BASE}/session.json`);
+    if (!res.ok) throw new Error(t('sessionNotFound'));
+    const data = await res.json();
+    render(Array.isArray(data) ? data[0] : data);
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      `<div class="state">${t('errorPrefix')}${e.message}</div>`;
+  }
 }
 
 load();
