@@ -139,19 +139,6 @@
   .img-arrow-right { right: 8px; }
   .img-arrow-left { left: 8px; }
 
-  .frame-counter {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.55);
-    color: #fff;
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    pointer-events: none;
-  }
-
   .event-body { padding: 10px 12px; }
 
   .event-type {
@@ -290,46 +277,10 @@
 </head>
 <body>
 
-<div id="app"></div>
+<div id="app"><div class="state">טוען...</div></div>
 
 <script>
 const frameState = {};
-
-const T = {
-  he: {
-    loading: 'טוען...',
-    errorPrefix: 'שגיאה בטעינה: ',
-    missingParams: 'חסרים פרמטרים ב-URL',
-    sessionNotFound: 'לא נמצא session.json',
-    coachSummary: name => `סיכום המאמן עבור הגולש ${name}`,
-    showFrames: 'הצג פריימים בתחתית',
-    hideFrames: 'הסתר פריימים בתחתית',
-    ratingTitle: 'איך היה הניתוח? דרג מ-1 עד 5',
-    ratingThanks: 'תודה על הפידבק 🙏',
-    sessionSummary: 'סיכום סשיין גלישה',
-    tube: '🌊 צינור'
-  },
-  en: {
-    loading: 'Loading...',
-    errorPrefix: 'Load error: ',
-    missingParams: 'Missing URL parameters',
-    sessionNotFound: 'session.json not found',
-    coachSummary: name => `Coach summary for ${name}`,
-    showFrames: 'Show frames',
-    hideFrames: 'Hide frames',
-    ratingTitle: 'How was the analysis? Rate 1–5',
-    ratingThanks: 'Thanks for your feedback 🙏',
-    sessionSummary: 'Session summary',
-    tube: '🌊 Tube'
-  }
-};
-
-function t(key, ...args) {
-  const entry = (T[window.LANG] ?? T['he'])[key];
-  return typeof entry === 'function' ? entry(...args) : entry;
-}
-
-document.getElementById('app').innerHTML = `<div class="state">${t('loading')}</div>`;
 
 function selectFrame(eventId, index) {
   const card = document.querySelector(`.event[data-id="${eventId}"]`);
@@ -338,8 +289,6 @@ function selectFrame(eventId, index) {
   const f = frames[index];
   const img = document.getElementById(`main-img-${eventId}`);
   if (img) img.src = `${window.FRAME_BASE}/${f.filename}`;
-  const counter = document.getElementById(`counter-${eventId}`);
-  if (counter) counter.textContent = `F${f.num}`;
 }
 
 function shiftFrame(eventId, dir) {
@@ -352,7 +301,7 @@ function shiftFrame(eventId, dir) {
 
 function submitRating(val) {
   document.getElementById('rating-box').innerHTML =
-    `<div class="rating-thanks">${t('ratingThanks')}</div>`;
+    `<div class="rating-thanks">תודה על הפידבק 🙏</div>`;
 }
 
 async function load() {
@@ -361,23 +310,18 @@ async function load() {
     const user = params.get('user');
     const session = params.get('session');
     const wave = params.get('wave');
-    const lang = params.get('lang') ?? 'he';
 
-    window.LANG = lang;
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
-
-    if (!user || !session || !wave) throw new Error(t('missingParams'));
+    if (!user || !session || !wave) throw new Error('חסרים פרמטרים ב-URL');
 
     window.FRAME_BASE = `https://raw.githubusercontent.com/ZoharPilot/surfcoach-analyze/main/users/${user}/${session}/${wave}`;
 
     const res = await fetch(`${window.FRAME_BASE}/session.json`);
-    if (!res.ok) throw new Error(t('sessionNotFound'));
+    if (!res.ok) throw new Error('לא נמצא session.json');
     const data = await res.json();
     render(Array.isArray(data) ? data[0] : data);
   } catch (e) {
     document.getElementById('app').innerHTML =
-      `<div class="state">${t('errorPrefix')}${e.message}</div>`;
+      `<div class="state">שגיאה בטעינה: ${e.message}</div>`;
   }
 }
 
@@ -420,7 +364,6 @@ function eventHtml(ev) {
     ${peakImg}
     <button class="img-arrow img-arrow-right" onclick="shiftFrame(${ev.event_id}, -1)">&#8249;</button>
     <button class="img-arrow img-arrow-left" onclick="shiftFrame(${ev.event_id}, 1)">&#8250;</button>
-    <div class="frame-counter" id="counter-${ev.event_id}">F${peakFrame?.num ?? ''}</div>
   </div>
   <div class="event-body">
     <div class="event-type${isTube ? ' tube' : ''}">${typeLabel(ev.type)}</div>
@@ -434,7 +377,7 @@ function eventHtml(ev) {
 
 function render(d) {
   const tubeBadge = d.hasTube
-    ? `<span class="wave-badge tube">${t('tube')}</span>`
+    ? `<span class="wave-badge tube">🌊 צינור</span>`
     : `<span class="wave-badge">${d.waveLevel}</span>`;
 
   const eventsHtml = (d.events || []).filter(ev => ev.analysis && ev.analysis.trim()).map(eventHtml).join('');
@@ -452,24 +395,24 @@ function render(d) {
       <div class="header-meta">${d.date} · גל ${d.waveLevel} · ${d.totalFrames} פריימים · ${d.fps}fps</div>
     </div>
 
-    <div class="summary"><strong>${t('coachSummary', d.surferName)}</strong></div>
+    <div class="summary"><strong>סיכום המאמן עבור הגולש ${d.surferName}</strong></div>
 
   <button class="toggle-btn" onclick="
       document.body.classList.toggle('expanded');
       this.textContent = document.body.classList.contains('expanded')
-        ? '${t('hideFrames')}'
-        : '${t('showFrames')}';
-    ">${t('showFrames')}</button>
+        ? 'הסתר פריימים בתחתית'
+        : 'הצג פריימים בתחתית';
+    ">הצג פריימים בתחתית</button>
 
     <div class="events">${eventsHtml}</div>
 
     <div class="rating-box" id="rating-box">
-      <div class="rating-title">${t('ratingTitle')}</div>
+      <div class="rating-title">איך היה הניתוח? דרג מ-1 עד 5</div>
       <div class="rating-circles">${ratingCircles}</div>
     </div>
 
     <div class="footer">
-      <strong>${t('sessionSummary')}</strong>
+      <strong>סיכום סשיין גלישה</strong>
       ${d.surferName} · גל ${d.waveLevel} · ${d.date}
     </div>
   `;
