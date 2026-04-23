@@ -33,7 +33,6 @@
   [dir="ltr"] { text-align: left; }
   [dir="rtl"] { text-align: right; }
 
-  /* HEADER */
   .header {
     background: var(--black);
     color: var(--white);
@@ -138,24 +137,6 @@
     color: var(--white);
   }
 
-  /* TOGGLE */
-  .toggle-btn {
-    display: block;
-    width: calc(100% - 24px);
-    margin: 12px 12px 4px;
-    padding: 10px;
-    background: transparent;
-    color: var(--black);
-    border: 1px solid var(--gray-2);
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 4px;
-    text-align: center;
-  }
-
   /* EVENTS */
   .events { padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
 
@@ -165,14 +146,18 @@
     overflow: hidden;
   }
 
-  .event-img-wrap { position: relative; }
+  /* IMAGE */
+  .event-img-wrap {
+    position: relative;
+    background: var(--black);
+  }
 
   .event-img {
     width: 100%;
     height: 210px;
     object-fit: cover;
+    object-position: top left;
     display: block;
-    background: var(--gray-2);
   }
 
   .event-img-placeholder {
@@ -191,38 +176,82 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.55);
     color: white;
     border: none;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     cursor: pointer;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
   }
-
+  .img-arrow:active { background: rgba(0,0,0,0.85); }
   .img-arrow-prev { left: 8px; }
   .img-arrow-next { right: 8px; }
 
-  .frame-counter {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    pointer-events: none;
-    letter-spacing: 0.05em;
+  /* FRAME BAR — sits between image and event body */
+  .frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    background: var(--black);
   }
 
+  .frame-num {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: 0.04em;
+    min-width: 36px;
+  }
+
+  /* scrubber track */
+  .frame-scrubber {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .frame-scrubber-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 2px;
+  }
+
+  .frame-scrubber.tube .frame-scrubber-fill {
+    background: var(--green);
+  }
+
+  /* role label */
+  .frame-role {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    min-width: 34px;
+    text-align: right;
+  }
+
+  [dir="rtl"] .frame-role { text-align: left; }
+
+  .frame-role.is-start { color: rgba(255,255,255,0.65); }
+  .frame-role.is-peak  { color: var(--blue); }
+  .frame-role.is-end   { color: rgba(255,255,255,0.65); }
+  .frame-role.tube.is-peak { color: var(--green); }
+
+  /* EVENT BODY */
   .event-body { padding: 12px 14px; }
 
   .event-type {
@@ -241,43 +270,6 @@
     font-size: 0.92rem;
     line-height: 1.55;
     color: var(--black);
-  }
-
-  /* EXPANDED FRAMES */
-  .event-detail { display: none; padding: 10px 12px; border-top: 1px solid var(--gray-2); }
-  body.expanded .event-detail { display: block; }
-
-  .frames-row {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .frame-thumb {
-    flex-shrink: 0;
-    width: 78px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .frame-thumb img {
-    width: 78px;
-    height: 52px;
-    object-fit: cover;
-    border-radius: 2px;
-    border: 2px solid transparent;
-    display: block;
-  }
-
-  .frame-thumb.peak img { border-color: var(--blue); }
-  .frame-thumb.peak.tube img { border-color: var(--green); }
-
-  .frame-thumb-label {
-    font-family: var(--mono);
-    font-size: 0.5rem;
-    color: var(--gray-3);
-    margin-top: 3px;
   }
 
   /* RATING */
@@ -325,7 +317,6 @@
     padding: 8px 0;
   }
 
-  /* FOOTER */
   .footer {
     background: var(--black);
     color: rgba(255,255,255,0.4);
@@ -350,8 +341,8 @@
 <div id="app"></div>
 
 <script>
-const frameState = {};
 window.LANG = 'he';
+const frameState = {};
 
 const T = {
   he: {
@@ -365,22 +356,21 @@ const T = {
     frames: 'פריימים',
     fps: 'FPS',
     tube: 'TUBE',
-    showFrames: 'הצג פריימים',
-    hideFrames: 'הסתר פריימים',
     ratingLabel: 'דרג את הניתוח',
     ratingThanks: 'תודה על הפידבק',
     noImage: 'אין תמונה',
     footer: name => `${name} · SURFCOACH`,
+    roles: { start: 'START', peak: 'PEAK', mid: '', end: 'END' },
     types: {
-      popup_execution: 'קימה',
-      bottom_turn: 'תפנית תחתית',
-      top_turn: 'תפנית עליונה',
-      barrel_entry: 'כניסה לצינור',
-      tube_ride: 'רכיבת צינור',
-      controlled_exit: 'יציאה מבוקרת',
+      popup_execution:    'קימה',
+      bottom_turn:        'תפנית תחתית',
+      top_turn:           'תפנית עליונה',
+      barrel_entry:       'כניסה לצינור',
+      tube_ride:          'רכיבת צינור',
+      controlled_exit:    'יציאה מבוקרת',
       wipeout_management: 'נפילה',
-      pump: 'פאמפ',
-      ride_end: 'סיום גל'
+      pump:               'פאמפ',
+      ride_end:           'סיום גל'
     }
   },
   en: {
@@ -394,22 +384,21 @@ const T = {
     frames: 'Frames',
     fps: 'FPS',
     tube: 'TUBE',
-    showFrames: 'Show frames',
-    hideFrames: 'Hide frames',
     ratingLabel: 'Rate the analysis',
     ratingThanks: 'Thanks for your feedback',
     noImage: 'No image',
     footer: name => `${name} · SURFCOACH`,
+    roles: { start: 'START', peak: 'PEAK', mid: '', end: 'END' },
     types: {
-      popup_execution: 'Pop-up',
-      bottom_turn: 'Bottom Turn',
-      top_turn: 'Top Turn',
-      barrel_entry: 'Barrel Entry',
-      tube_ride: 'Tube Ride',
-      controlled_exit: 'Controlled Exit',
+      popup_execution:    'Pop-up',
+      bottom_turn:        'Bottom Turn',
+      top_turn:           'Top Turn',
+      barrel_entry:       'Barrel Entry',
+      tube_ride:          'Tube Ride',
+      controlled_exit:    'Controlled Exit',
       wipeout_management: 'Wipeout',
-      pump: 'Pump',
-      ride_end: 'Ride End'
+      pump:               'Pump',
+      ride_end:           'Ride End'
     }
   }
 };
@@ -421,99 +410,138 @@ function t(key, ...args) {
 }
 
 function typeLabel(type) {
-  const labels = (T[window.LANG] ?? T['en']).types;
-  return labels[type] || type.replace(/_/g, ' ');
+  return (T[window.LANG] ?? T['en']).types[type] || type.replace(/_/g, ' ');
+}
+
+function roleLabel(role) {
+  return (T[window.LANG] ?? T['en']).roles[role] ?? '';
 }
 
 function isTubeType(type) {
   return ['tube_ride', 'barrel_entry', 'controlled_exit'].includes(type);
 }
 
-function selectFrame(eventId, index) {
-  const card = document.querySelector(`.event[data-id="${eventId}"]`);
+// ── FRAME NAVIGATION ──────────────────────────────────────────
+
+function updateFrameUI(eventId, index) {
+  const card  = document.querySelector(`.event[data-id="${eventId}"]`);
   const frames = JSON.parse(card.dataset.frames);
+  const total  = frames.length;
+  if (index < 0 || index >= total) return;
+
   frameState[eventId] = index;
-  const f = frames[index];
-  const img = document.getElementById(`main-img-${eventId}`);
+  const f    = frames[index];
+  const type = card.dataset.type;
+
+  // image
+  const img = document.getElementById(`img-${eventId}`);
   if (img) img.src = `${window.FRAME_BASE}/${f.filename}`;
-  const counter = document.getElementById(`counter-${eventId}`);
-  if (counter) counter.textContent = `F${f.num}`;
+
+  // frame number
+  const numEl = document.getElementById(`fnum-${eventId}`);
+  if (numEl) numEl.textContent = `F${f.num}`;
+
+  // role badge
+  const roleEl = document.getElementById(`frole-${eventId}`);
+  if (roleEl) {
+    roleEl.textContent = roleLabel(f.role);
+    let cls = 'frame-role';
+    if (f.role === 'start') cls += ' is-start';
+    if (f.role === 'peak')  cls += ' is-peak';
+    if (f.role === 'end')   cls += ' is-end';
+    if (f.role === 'peak' && isTubeType(type)) cls += ' tube';
+    roleEl.className = cls;
+  }
+
+  // scrubber fill
+  const fill = document.getElementById(`sfill-${eventId}`);
+  if (fill) {
+    const pct = total > 1 ? (index / (total - 1)) * 100 : 100;
+    fill.style.width = pct + '%';
+  }
 }
 
 function shiftFrame(eventId, dir) {
-  const card = document.querySelector(`.event[data-id="${eventId}"]`);
-  const frames = JSON.parse(card.dataset.frames);
-  const current = frameState[eventId] ?? frames.findIndex(f => f.role === 'peak');
-  const next = (current + dir + frames.length) % frames.length;
-  selectFrame(eventId, next);
+  const card  = document.querySelector(`.event[data-id="${eventId}"]`);
+  const total = JSON.parse(card.dataset.frames).length;
+  const cur   = frameState[eventId] ?? 0;
+  updateFrameUI(eventId, Math.max(0, Math.min(total - 1, cur + dir)));
 }
 
-function toggleFrames(btn) {
-  document.body.classList.toggle('expanded');
-  btn.textContent = document.body.classList.contains('expanded')
-    ? t('hideFrames')
-    : t('showFrames');
+function scrubberClick(eventId, e) {
+  const bar   = document.getElementById(`scrub-${eventId}`);
+  const card  = document.querySelector(`.event[data-id="${eventId}"]`);
+  const total = JSON.parse(card.dataset.frames).length;
+  const rect  = bar.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  updateFrameUI(eventId, Math.round(ratio * (total - 1)));
 }
 
-function submitRating(val) {
-  document.getElementById('rating-box').innerHTML =
-    `<div class="rating-thanks">${t('ratingThanks')}</div>`;
-}
+// ── EVENT CARD HTML ────────────────────────────────────────────
 
 function eventHtml(ev) {
   if (!ev.analysis) return '';
-  const isTube = isTubeType(ev.type);
-  const peakFrame = ev.frames?.find(f => f.role === 'peak') || ev.frames?.[0];
 
-  const mainImg = peakFrame
-    ? `<img class="event-img" id="main-img-${ev.event_id}"
-        src="${window.FRAME_BASE}/${peakFrame.filename}"
-        alt="F${peakFrame.num}"
-        onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>${t('noImage')}</div>'">`
+  const isTube  = isTubeType(ev.type);
+  const frames  = ev.frames || [];
+  const first   = frames[0];
+
+  const mainImg = first
+    ? `<img class="event-img" id="img-${ev.event_id}"
+          src="${window.FRAME_BASE}/${first.filename}"
+          alt="F${first.num}"
+          onerror="this.outerHTML='<div class=\\'event-img-placeholder\\'>${t('noImage')}</div>'">`
     : `<div class="event-img-placeholder">${t('noImage')}</div>`;
 
-  const thumbs = (ev.frames || []).map((f, i) => `
-    <div class="frame-thumb${f.role === 'peak' ? (isTube ? ' peak tube' : ' peak') : ''}"
-         onclick="selectFrame(${ev.event_id}, ${i})">
-      <img src="${window.FRAME_BASE}/${f.filename}" alt="F${f.num}"
-        onerror="this.style.background='var(--gray-2)';this.removeAttribute('src')">
-      <div class="frame-thumb-label">F${f.num}</div>
-    </div>`).join('');
+  const firstRole = first?.role ?? '';
+  let roleCls = 'frame-role';
+  if (firstRole === 'start') roleCls += ' is-start';
+  if (firstRole === 'peak')  roleCls += ' is-peak';
+  if (firstRole === 'end')   roleCls += ' is-end';
+  if (firstRole === 'peak' && isTube) roleCls += ' tube';
 
-  const framesJson = JSON.stringify(ev.frames || []).replace(/"/g, '&quot;');
+  const framesJson = JSON.stringify(frames).replace(/"/g, '&quot;');
 
   return `
-<div class="event" data-frames="${framesJson}" data-id="${ev.event_id}">
+<div class="event" data-id="${ev.event_id}" data-frames="${framesJson}" data-type="${ev.type}">
   <div class="event-img-wrap">
     ${mainImg}
     <button class="img-arrow img-arrow-prev" onclick="shiftFrame(${ev.event_id}, -1)">&#8249;</button>
-    <button class="img-arrow img-arrow-next" onclick="shiftFrame(${ev.event_id}, 1)">&#8250;</button>
-    <div class="frame-counter" id="counter-${ev.event_id}">F${peakFrame?.num ?? ''}</div>
+    <button class="img-arrow img-arrow-next" onclick="shiftFrame(${ev.event_id},  1)">&#8250;</button>
   </div>
+
+  <div class="frame-bar">
+    <span class="frame-num" id="fnum-${ev.event_id}">F${first?.num ?? ''}</span>
+    <div class="frame-scrubber${isTube ? ' tube' : ''}"
+         id="scrub-${ev.event_id}"
+         onclick="scrubberClick(${ev.event_id}, event)">
+      <div class="frame-scrubber-fill" id="sfill-${ev.event_id}" style="width:0%"></div>
+    </div>
+    <span class="${roleCls}" id="frole-${ev.event_id}">${roleLabel(firstRole)}</span>
+  </div>
+
   <div class="event-body">
     <div class="event-type${isTube ? ' tube' : ''}">${typeLabel(ev.type)}</div>
     <div class="event-analysis">${ev.analysis}</div>
   </div>
-  <div class="event-detail">
-    <div class="frames-row">${thumbs}</div>
-  </div>
 </div>`;
 }
+
+// ── RENDER ─────────────────────────────────────────────────────
 
 function render(d) {
   const isRtl = window.LANG === 'he';
   document.documentElement.lang = window.LANG;
-  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
-  document.body.style.direction = isRtl ? 'rtl' : 'ltr';
+  document.documentElement.dir  = isRtl ? 'rtl' : 'ltr';
+  document.body.style.direction  = isRtl ? 'rtl' : 'ltr';
 
   const tubeBadge = d.hasTube
     ? `<span class="wave-badge tube">${t('tube')}</span>`
     : `<span class="wave-badge">${d.waveLevel}</span>`;
 
-  const avatarUrl = `https://raw.githubusercontent.com/ZoharPilot/surfcoach-analyze/main/users/${window.CURRENT_USER}/photo.jpg`;
+  const avatarUrl  = `https://raw.githubusercontent.com/ZoharPilot/surfcoach-analyze/main/users/${window.CURRENT_USER}/photo.jpg`;
   const avatarHtml = `<img class="surfer-avatar"
-    src="${avatarUrl}"
-    alt="${d.surferName}"
+    src="${avatarUrl}" alt="${d.surferName}"
     onerror="this.outerHTML='<div class=\\'surfer-avatar-fallback\\'>${d.surferName.charAt(0).toUpperCase()}</div>'">`;
 
   const eventsHtml = (d.events || [])
@@ -554,8 +582,6 @@ function render(d) {
       </div>
     </div>
 
-    <button class="toggle-btn" onclick="toggleFrames(this)">${t('showFrames')}</button>
-
     <div class="events">${eventsHtml}</div>
 
     <div class="rating-box" id="rating-box">
@@ -567,14 +593,21 @@ function render(d) {
   `;
 }
 
+function submitRating(val) {
+  document.getElementById('rating-box').innerHTML =
+    `<div class="rating-thanks">${t('ratingThanks')}</div>`;
+}
+
+// ── LOAD ───────────────────────────────────────────────────────
+
 async function load() {
-  const params = new URLSearchParams(window.location.search);
+  const params  = new URLSearchParams(window.location.search);
   const user    = params.get('user');
   const session = params.get('session');
   const wave    = params.get('wave');
   const lang    = params.get('lang') ?? 'he';
 
-  window.LANG = lang;
+  window.LANG         = lang;
   window.CURRENT_USER = user;
   document.documentElement.lang = lang;
   document.documentElement.dir  = lang === 'he' ? 'rtl' : 'ltr';
